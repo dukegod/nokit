@@ -1,3 +1,45 @@
+### 1.23.2
+1. 改进 CLI
+
+### 1.23.0
+1. 修复浏览器中的旧 cookie 会被重写设置的 Bug
+2. 修复 CLI 重启一单个应用时的 CLI 进程不退出问题 
+3. 修复 controller.init 为 generator 时异常处理 Bug
+4. 修复「路由参数限定」表达式检查 Bug
+
+### 1.22.6
+1. 增加 context.promise 方法
+2. 增加 context.thunk 方法
+3. 改进使用 generator 时的错误处理
+4. 更新 examples
+
+### 1.22.4
+1. 重写 Task 模块
+2. 增加 nokit.define 方法
+4. 分拆 Base64 模块
+
+### 1.22.1
+1. 改进路由处理
+2. 更新 Buffer 拼接方式
+3. 改进静态资源处理
+4. 支持通过 generator/yield 控制异步流程
+
+### 1.21.2
+1. 新增路由参数验证表达式功能
+2. 改进路由处理($.route.actionUrl 方法)
+3. 更新 filter 、handler 别名格式
+
+### 1.21.0
+1. 重构 Router
+2. 重构 Context
+3. 重构 Response
+4. 重构 Request
+5. 重构 Cookie
+6. 重构 Session
+7. 重构 Logger
+8. 新增 context.buffer
+9. 新增 context.data/context.param
+
 ### 1.20.2
 1. 改进 "host" 配置
 2. 改进 "forbiddens" 配置
