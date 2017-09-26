@@ -1,21 +1,19 @@
-/* global __dirname */
-/* global process */
-var isWin = process.platform === 'win32';
-var child_process = require('child_process');
-var path = require("path");
-var nokit = require("../");
-var processLog = require('./process-log');
-var utils = nokit.utils;
-var base64 = nokit.base64;
-var console = nokit.console;
+const isWin = process.platform === 'win32';
+const child_process = require('child_process');
+const path = require("path");
+const nokit = require("../");
+const processLog = require('./process-log');
+const utils = nokit.utils;
+const base64 = nokit.base64;
+const console = nokit.console;
 //var _debugger = require('../tool/debugger');
-var spawn = child_process.spawn;
-var exec = child_process.exec;
+const spawn = child_process.spawn;
+const exec = child_process.exec;
 
-var engineName = path.basename(process.argv[0] || 'node').split('.')[0];
-var win32EngineName = path.normalize(__dirname + '/shim/win32/' + engineName + '.vbs ');
+const engineName = path.basename(process.argv[0] || 'node').split('.')[0];
+const win32EngineName = path.normalize(__dirname + '/shim/win32/' + engineName + '.vbs ');
 
-var self = exports;
+const self = exports;
 
 //cli进程延迟存活时间
 self.isWin = isWin;
@@ -26,7 +24,7 @@ self.isWin = isWin;
 self.kill = function (pid) {
   try {
     process.kill(pid);
-  } catch (ex) { }
+  } catch (err) { }
 };
 
 /**
@@ -92,33 +90,17 @@ self.deleteAllApp = function () {
 };
 
 /**
- * 编码启动信息
- **/
-var endcodeStartInfo = function (startInfo) {
-  return base64.encode(JSON.stringify(startInfo || []));
-};
-
-/**
- * 解码启动信息
- **/
-var dedcodeStartInfo = function (startInfo) {
-  return JSON.parse(base64.decode(startInfo));
-};
-
-/**
  * 启动一个 app
  **/
-self.startAppByInfo = function (startInfo) {
-  //将启动信息加入到自身，用于重启
-  startInfo.push('-start-info:' + endcodeStartInfo(startInfo));
-  this.start(startInfo);
-};
-
-/**
- * 启动一个 app
- **/
-self.startApp = function (log) {
-  self.startAppByInfo(dedcodeStartInfo(log.startInfo));
+self.startApp = function (params) {
+  var args = [
+    params.nodeOptions,
+    params.main,
+    base64.encode(JSON.stringify(params))
+  ].filter(function (item) {
+    return !utils.isNull(item);
+  });
+  self.start(args);
 };
 
 /**
@@ -127,8 +109,8 @@ self.startApp = function (log) {
 self.restartApp = function (nameOrPid) {
   var log = processLog.get(nameOrPid);
   if (!log) return;
-  this.killApp(nameOrPid);
-  this.startApp(log);
+  this.deleteApp(nameOrPid);
+  this.startApp(log.params);
 };
 
 /**
@@ -136,9 +118,9 @@ self.restartApp = function (nameOrPid) {
  **/
 self.restartAllApp = function () {
   var logArray = processLog.readArray();
-  this.killAllApp();
+  this.deleteAllApp();
   for (var i in logArray) {
     var log = logArray[i];
-    this.startApp(log);
+    this.startApp(log.params);
   }
 };

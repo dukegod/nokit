@@ -1,83 +1,46 @@
-/* global process */
-var nokit = require("../");
-var utils = nokit.utils;
-var path = require("path");
-var CmdLine = require("cmdline");
-var cluster = require("cluster");
-var master = require("./master");
-var worker = require("./worker");
+const nokit = require("../");
+const utils = nokit.utils;
+const path = require("path");
+const cluster = require("cluster");
+const base64 = nokit.base64;
 
-//var debugger = require('../test/debugger');
-//debugger.log('进入 app.js');
+var params = process.argv[2] ?
+  JSON.parse(base64.decode(process.argv[2])) : {};
 
-//处理参数信息开始
-var cwd = process.cwd();
-var cml = new CmdLine();
+// require('../tool/debugger').log(params);
 
 //创建 options
 //注意 options 必须这样创建，不能用 var options = {...}; 的形式创建
 var options = {};
 
-if (cml.args[0] && cml.args[0] != "" && cml.args[0] != "0" && cml.args[0] != 0) {
-  options.port = cml.args[0];
-}
-if (cml.args[1]) {
-  options.root = path.resolve(cwd, cml.args[1]);
+//应用端口
+if (!utils.isNull(params.port)) {
+  options.port = params.port;
 }
 
-//是否自定义指定 public 文件夹
-var publicFolder = cml.options.getValue('-public');
-if (publicFolder) {
-  options.folders = options.folders || {};
-  options.folders.public = {
-    "*": publicFolder
-  };
+//应用根目录
+if (!utils.isNull(params.root)) {
+  options.root = params.root;
 }
 
 //是否指定配置文件名称
-var configName = cml.options.getValue('-config');
-if (configName) {
-  options.config = configName;
+if (!utils.isNull(params.config)) {
+  options.config = params.config;
 }
 
 //是否使用环境配置
-var envName = cml.options.getValue('-env');
-if (envName || process.env.NODE_ENV) {
-  options.env = envName || process.env.NODE_ENV;
+if (!utils.isNull(params.env)) {
+  options.env = params.env;
 }
 
-//缓存参数 cache
-var cache = cml.options.getValue('-cache');
-if (!utils.isNull(cache)) {
-  options.cache = options.cache || {};
-  options.cache.enabled = Boolean(cache);
+//是否自定义指定 public 文件夹
+if (!utils.isNull(params.public)) {
+  options.public = options.public || {};
+  options.public["*"] = params.public;
 }
 
-//压缩参数 compress
-var compress = cml.options.getValue('-compress');
-if (!utils.isNull(compress)) {
-  options.compress = options.compress || {};
-  options.compress.enabled = Boolean(compress);
-}
-
-//session 参数 
-var session = cml.options.getValue('-session');
-if (!utils.isNull(session)) {
-  options.session = options.session || {};
-  options.session.enabled = Boolean(session);
-}
-
-//log 参数 
-var log = cml.options.getValue('-log');
-if (!utils.isNull(log)) {
-  options.log = options.log || {};
-  options.log.enabled = Boolean(log);
-}
+params.options = options;
 //处理参数信息结束
 
-if (cluster.isMaster) {
-  master.init(options, cml);
-} else {
-  worker.init(options, cml);
-}
-/*end*/
+//记动 master 或 worker
+(cluster.isMaster ? require("./master") : require("./worker")).init(params);

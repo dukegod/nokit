@@ -1,5 +1,43 @@
-### 1.23.2
+### 1.25.8
+1. 重构开机自启动逻辑 
+
+### 1.25.7
+1. 重写了 CLI 相关实现 
+2. 改进「缓存」处理
+
+### 1.25.3
+1. 改进配置文件功能，支持多种指令（$require,$calc,$read）
+
+### 1.25.1
+1. 改进模板缓存处理算法
+2. 增强配置文件功能（支持 yaml/cson/folder 等多种格式和形式）
+3. 调整 filter 和 handler 的模式表达式结构
+4. 调整 public (静态资源目录) 配置的结构
+
+### 1.24.5
+1. 修复 nokit restart 未清理旧记录的 Bug
+
+### 1.24.4
+1. 修复一个处理视图默认扩展名的 Bug
+
+### 1.24.3
+1. 修复 include 一个内容为空视图时的 bug
+2. 添加 session.reset 方法
+
+### 1.24.2
+1. 更新上游信赖
+
+### 1.24.0
+1. 优化 headers 处理
+2. 重构 context.status 方法
+3. 重命名 context.statusWithContext 为 context.statusTemplate
+4. 重构 context.stream 方法
+5. 增加 context.header 和 context.headers 方法
+6. 增加 context.request.getHeader 方法
+
+### 1.23.3
 1. 改进 CLI
+2. 改进 NSP/NSH
 
 ### 1.23.0
 1. 修复浏览器中的旧 cookie 会被重写设置的 Bug

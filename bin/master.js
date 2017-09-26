@@ -1,44 +1,35 @@
-var nokit = require("../");
-var console = nokit.console;
-var env = nokit.env;
-var utils = nokit.utils;
-var path = require("path");
-var Notifier = require('./notifier');
-var domain = require("domain");
-var chokidar = require('chokidar');
-var processLog = require("./process-log");
-var cluster = require("cluster");
-var cpuTotal = require("os").cpus().length;
-var exitCode = nokit.exitCode;
-var self = exports;
+const nokit = require("../");
+const console = nokit.console;
+const env = nokit.env;
+const utils = nokit.utils;
+const path = require("path");
+const Notifier = require('./notifier');
+const domain = require("domain");
+const chokidar = require('chokidar');
+const processLog = require("./process-log");
+const cluster = require("cluster");
+const cpuTotal = require("os").cpus().length;
+const exitCode = nokit.exitCode;
+const self = exports;
 
-var EXIT_DELAY = 1000;
+const EXIT_DELAY = 1000;
 
-self.init = function (options, cml) {
+self.init = function (params) {
 
-  var notifier = new Notifier();
+  const notifier = new Notifier();
 
-  var startInfo = cml.options.getValue('-start-info') || '';
-  var isDebug = cml.options.has('--debug') || cml.options.has('--debug-brk');
-  var isCluster = cml.options.has('-cluster') && !isDebug;
-  var isWatch = cml.options.has('-watch');
-  var appName = cml.options.getValue('-name');
-  //--
-
-  var workerNumber = isCluster ? parseInt(cml.options.getValue('-cluster') || cpuTotal) : 1;
-  if (workerNumber < 1) workerNumber = 1;
+  var workerNumber = utils.isNull(params.cluster) ? 1 : params.cluster;
+  workerNumber = workerNumber > 0 ? workerNumber : cpuTotal;
   var workerReady = 0;
-  var workerDebugPort = parseInt(cml.options.getValue('--debug') || cml.options.getValue('--debug-brk')) + 1;
 
   //进程日志信息
   var logInfo = {
     pid: process.pid,
-    name: appName || process.pid,
-    path: options.root,
-    env: options.env,
-    debug: isDebug ? workerDebugPort : false,
-    watch: isWatch ? (cml.options.getValue('-watch') || "*") : false,
-    startInfo: startInfo,
+    name: params.name || process.pid,
+    path: params.root,
+    env: params.env,
+    watch: params.watch,
+    params: params,
     status: false
   };
 
@@ -59,7 +50,6 @@ self.init = function (options, cml) {
           utils.each(allWorkers, function (id, _worker) {
             logInfo.wpid.push(_worker.process.pid);
           });
-          logInfo.host = (configs.hosts || [])[0] || 'localhost';
           logInfo.port = configs.port;
           logInfo.status = true;
           processLog.save(logInfo);
@@ -89,12 +79,6 @@ self.init = function (options, cml) {
     createWorker();
   }
 
-  //发现一个 worker 结束，就启动一个新的 worker
-  // cluster.on('exit', function (worker) {
-  //     workerReady--;
-  //     createWorker();
-  // });
-
   //发现一个 worker disconnect，就启动一个新的 worker
   cluster.on('disconnect', function (worker) {
     workerReady--;
@@ -110,27 +94,15 @@ self.init = function (options, cml) {
   };
 
   //启用文件监控
-  var watchEnabled = cml.options.has('-watch');
-  if (watchEnabled) {
-    var watchTypes = cml.options.getValue('-watch');
-    if (watchTypes) {
-      watchTypes = watchTypes.split(',');
-    }
-    //文件改变处理函数
-    var fileChanged = function (file) {
-      var extname = path.extname(file).toLowerCase();
-      if (extname == '.log' || (watchTypes &&
-        watchTypes.length > 0 &&
-        !utils.contains(watchTypes, extname))) {
-        return;
-      }
-      killAllWorkers();
-    };
+  if (params.watch) {
     //启动文件监控
-    chokidar.watch(options.root, {
+    chokidar.watch(params.root, {
       ignoreInitial: true
     }).on('all', function (event, path) {
-      fileChanged(path);
+      var extname = path.extname(file).toLowerCase();
+      if (extname == '.log') return;
+      killAllWorkers();
     });
   }
+
 };

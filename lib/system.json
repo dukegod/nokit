@@ -10,12 +10,12 @@
   "showErrorDetail": true,
   "headers": {},
   "handlers": {
-    "*:static": "$./handlers/static",
-    "^/-rc-/:rc": "$./handlers/resource",
-    "^/favicon.icon$:favicon": "$./handlers/favicon",
-    "^/favicon.ico$:favicon": "$./handlers/favicon",
-    ".nsp$:nsp": "$./handlers/nsp",
-    ".nsh$:nsh": "$./handlers/nsh"
+    "*@static": "$./handlers/static",
+    "^/-rc-/@rc": "$./handlers/resource",
+    "^/favicon.icon$@favicon": "$./handlers/favicon",
+    "^/favicon.ico$@favicon": "$./handlers/favicon",
+    ".nsp$@nsp": "$./handlers/nsp",
+    ".nsh$@nsh": "$./handlers/nsh"
   },
   "parsers": {
     "*": "$./parsers/urlencoded",
@@ -49,10 +49,8 @@
     },
     "compress": true
   },
-  "folders": {
-    "public": {
-      "*": "./public"
-    }
+  "public": {
+    "*": "./public"
   },
   "cache": {
     "enabled": true,
@@ -103,7 +101,7 @@
       "text/html": true,
       "text/css": true,
       "text/javascript": true,
-      "appliction/x-javascript": true,
+      "application/x-javascript": true,
       "text/markdown": true,
       "text/less": true,
       "text/sass": true,
@@ -147,12 +145,12 @@
     "cache": false
   },
   "nsp": {
-    "path": "./nsp",
+    "path": "./",
     "compress": false,
     "cache": false
   },
   "nsh": {
-    "path": "./nsh",
+    "path": "./",
     "compress": false,
     "cache": false
   },

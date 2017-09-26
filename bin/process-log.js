@@ -1,8 +1,8 @@
-var path = require("path");
-var fs = require('fs');
-var nokit = require("../");
-var utils = nokit.utils;
-var env = nokit.env;
+const path = require("path");
+const fs = require('fs');
+const nokit = require("../");
+const utils = nokit.utils;
+const env = nokit.env;
 
 /**
  * 进程信息操作
@@ -58,15 +58,13 @@ ProcessLog.prototype.toPrintArray = function () {
   logArray = logArray.map(function (log) {
     return {
       NAME: log.name,
-      PID: log.pid,
-      WPID: log.wpid,
-      HOST: log.host,
+      MASTER: log.pid,
+      WORKER: log.wpid,
       PORT: log.port,
       PATH: utils.short(log.path),
-      ENV: log.env || "default",
-      WATCH: log.watch,
-      DEBUG: log.debug,
-      STATUS: log.status
+      ENV: log.env || "normal",
+      WATCH: !!log.watch,
+      STATUS: !!log.status
     };
   });
   return logArray;
